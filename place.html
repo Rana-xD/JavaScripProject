@@ -7,20 +7,47 @@
        <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDpsuxUqYQEye82RpYFAgsYu4NIbUUsVLA&libraries=places"></script>
        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
        <script src="location.js"></script>
-    <style>
-      /* Set the size of the div element that contains the map */
-      #map {
-        height: 400px;  /* The height is 400 pixels */
-        width: 100%;  /* The width is the width of the web page */
-       }
-    </style>
-  </head>
-  <body>
-    <h3>My Google Maps Demo</h3>
-    <!--The div element for the map -->
-    <div id="map"></div>
-    <hr>
-        
+       <style>
+        /* Always set the map height explicitly to define the size of the div
+         * element that contains the map. */
+        #map {
+          height: 100%;
+        }
+        /* Optional: Makes the sample page fill the window. */
+        html, body {
+          height: 100%;
+          margin: 0;
+          padding: 0;
+        }
+        #floating-panel {
+          position: absolute;
+          top: 10px;
+          left: 25%;
+          z-index: 5;
+          background-color: #fff;
+          padding: 5px;
+          border: 1px solid #999;
+          text-align: center;
+          font-family: 'Roboto','sans-serif';
+          line-height: 30px;
+          padding-left: 10px;
+        }
+      </style>
+    </head>
+    <body>
+      <div id="floating-panel">
+      <b>Mode of Travel: </b>
+      <select id="mode">
+        <option value="DRIVING">Driving</option>
+        <option value="WALKING">Walking</option>
+        <option value="BICYCLING">Bicycling</option>
+        <option value="TRANSIT">Transit</option>
+      </select>
+      Duration:
+      <p></p>
+      </div>
+      <div id="map"></div>
+  
   </body>
 
 

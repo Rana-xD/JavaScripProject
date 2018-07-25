@@ -26,7 +26,6 @@ if (!DP.location) DP.location = {};
                 currentPosition = marker.getPosition();
                 latitude = currentPosition.lat();
                 longitude = currentPosition.lng();
-                DP.location.getCurrentPosition();
     
             });
     }
@@ -77,39 +76,16 @@ if (!DP.location) DP.location = {};
             currentPosition = marker.getPosition();
             latitude = currentPosition.lat();
             longitude = currentPosition.lng();
-            DP.location.getCurrentPosition();
-            DP.location.getPlaceId();
+        
             
 
         });
      
     }
 
-    func.getCurrentPosition = function () {
-
-        console.log(latitude + ":" + longitude);
-        
-    }
-
-    func.getPlaceId = function()
-    {
-        var latlng = {lat: parseFloat(latitude), lng: parseFloat(longitude)};
-
-geocoder.geocode({'location': latlng}, function(results, status) {
-    if (status === google.maps.GeocoderStatus.OK) {
-      if (results[1]) {
-        console.log(results[1].place_id);
-      } else {
-        window.alert('No results found');
-      }
-    } else {
-      window.alert('Geocoder failed due to: ' + status);
-    }
-  });
-    }
-
     func.userMapInit = function()
     {
+        $('#floating-panel').hide();
         var location = { lat: 11.5483925, lng: 104.93257779999999 };
         var map = new google.maps.Map(
             document.getElementById('map'), { zoom: 15, center: location });
@@ -121,9 +97,93 @@ geocoder.geocode({'location': latlng}, function(results, status) {
             });
             google.maps.event.addListener(marker, 'click', function () {
     
-                window.open(marker.url, '_blank');
+            DP.location.getCurrentPosition();
     
             });
     }
+
+    func.getCurrentPosition = function () {
+
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(DP.location.geoSuccess, DP.location.geoError);
+            // alert("Geolocation is supported by this browser.");
+        } else {
+            alert("Geolocation is not supported by this browser.");
+        }
+
+        
+        
+    }
+   func.geoError = function () {
+        alert("Geocoder failed.");
+    }
+
+    func.geoSuccess = function(position)
+    {
+        var marker = { lat: 11.5483925, lng: 104.93257779999999 };
+        latitude = position.coords.latitude;
+        longitude = position.coords.longitude;
+        myLatLng = {
+            lat: latitude,
+            lng: longitude
+        };
+        $('#floating-panel').show();
+   
+        var directionsService = new google.maps.DirectionsService;
+            var directionsDisplay = new google.maps.DirectionsRenderer;
+        var map = new google.maps.Map(document.getElementById('map'), {
+            zoom: 7,
+            center: myLatLng
+          });
+          directionsDisplay.setMap(map);
+          
+          DP.location.calculateAndDisplayRoute(directionsService, directionsDisplay,myLatLng,marker);
+          document.getElementById('mode').addEventListener('change', function() {
+            DP.location.calculateAndDisplayRoute(directionsService, directionsDisplay,myLatLng,marker);
+           });
+  
+          
+      
+    }
+
+    func.calculateAndDisplayRoute = function(directionsService, directionsDisplay,myLatLng,marker) {
+        var selectedMode = document.getElementById('mode').value;
+            directionsService.route({
+            origin: myLatLng,
+            destination: marker,
+          travelMode: google.maps.TravelMode[selectedMode]
+        }, function(response, status) {
+          if (status == 'OK') {
+            
+            directionsDisplay.setDirections(response);
+            DP.location.getDuration(myLatLng,marker,selectedMode);
+          } else {
+            window.alert('Directions request failed due to ' + status);
+          }
+        });
+      }
+
+      func.getDuration = function(myLatLng,marker,mode)
+      {
+
+        var service = new google.maps.DistanceMatrixService;
+        service.getDistanceMatrix({
+          origins: [myLatLng],
+          destinations: [marker],
+          travelMode: mode,
+          unitSystem: google.maps.UnitSystem.METRIC,
+          avoidHighways: false,
+          avoidTolls: false
+        },function(response,status){
+            if (status !== 'OK') {
+                alert('Error was: ' + status);
+              } else {
+                //   alert(response.rows[0].elements[0].duration.text);
+                  $("p").text(response.rows[0].elements[0].duration.text)
+                //   console.log(response.rows[0].elements[0].duration.text);
+              }
+        });
+    }
+    
 
 })(jQuery);
